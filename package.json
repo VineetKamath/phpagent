@@ -11,10 +11,11 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "postinstall": "prisma generate",
-    "db:migrate": "prisma migrate deploy",
+    "db:migrate": "node scripts/migrate.mjs",
     "db:migrate:dev": "prisma migrate dev",
     "agent:run": "curl -fsS -X POST -H \"Authorization: Bearer $INTERNAL_API_TOKEN\" ${SITE_URL:-http://localhost:3000}/api/internal/run",
-    "ca": "node scripts/ca.mjs"
+    "ca": "node scripts/ca.mjs",
+    "db:status": "node scripts/migrate.mjs status"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -42,6 +43,6 @@
     "vitest": "^3.2.7"
   },
   "engines": {
-    "node": ">=20"
+    "node": "22.x"
   }
 }
