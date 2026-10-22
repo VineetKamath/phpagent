@@ -1,0 +1,6 @@
+{
+  "name": "demo/reporting-service",
+  "description": "Reporting application for phpagent-si",
+  "require": { "php": "^8.3" },
+  "config": { "platform": { "php": "8.3.35" } }
+}

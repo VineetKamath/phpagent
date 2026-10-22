@@ -21,7 +21,9 @@ export async function getReleaseTable(): Promise<ReleaseTable> {
   let data: ReleaseTable;
   try {
     const res = await fetch("https://www.php.net/releases/index.php?json&max=40&version=8", {
-      signal: AbortSignal.timeout(5000),
+      // php.net can take longer than a cold Render request to establish a connection.
+      signal: AbortSignal.timeout(15_000),
+      headers: { "User-Agent": "phpagent-si/0.1 (+https://phpagent.si)" },
       cache: "no-store",
     });
     if (!res.ok) throw new Error(`php.net HTTP ${res.status}`);

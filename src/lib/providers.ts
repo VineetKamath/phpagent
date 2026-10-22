@@ -16,11 +16,11 @@ const T = () => AbortSignal.timeout(6000);
 export const nvd: CVEProvider = {
   name: "nvd",
   async ping() {
-    const r = await fetch("https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=1", { signal: T(), headers: nvdHeaders(), cache: "no-store" });
+    const r = await fetch("https://services.nvd.nist.gov/rest/json/cves/2.0/?resultsPerPage=1", { signal: T(), headers: nvdHeaders(), cache: "no-store" });
     if (!r.ok) throw new Error(`NVD HTTP ${r.status}`);
   },
   async fetchById(id) {
-    const r = await fetch(`https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=${encodeURIComponent(id)}`, { signal: T(), headers: nvdHeaders(), cache: "no-store" });
+    const r = await fetch(`https://services.nvd.nist.gov/rest/json/cves/2.0/?cveId=${encodeURIComponent(id)}`, { signal: T(), headers: nvdHeaders(), cache: "no-store" });
     if (!r.ok) throw new Error(`NVD HTTP ${r.status}`);
     const text = await r.text();
     const j = JSON.parse(text);
