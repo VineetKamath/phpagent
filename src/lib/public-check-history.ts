@@ -14,7 +14,7 @@ type DatabaseRow = {
 };
 type ChecksDelegate = {
   upsert(args: { where: { repository: string }; update: Omit<DatabaseRow, "repository" | "checkedAt">; create: Omit<DatabaseRow, "checkedAt"> }): Promise<DatabaseRow>;
-  findMany(args: { orderBy: { checkedAt: "desc" }; take: number }): Promise<DatabaseRow[]>;
+  findMany(args: { orderBy: { checkedAt: "desc" }; take?: number }): Promise<DatabaseRow[]>;
 };
 type ChecksDatabase = { publicRepositoryCheck: ChecksDelegate };
 const g = globalThis as unknown as { __publicCheckHistory?: Map<string, Row> };
@@ -47,11 +47,14 @@ export async function savePublicCheck(check: PublicCheck): Promise<PublicCheckHi
   return { repository: row.repository, url: row.url, defaultBranch: row.defaultBranch, scannedFiles: row.scannedFiles, changes: row.changes as PublicCheck["changes"], reviews: row.reviews as PublicCheck["reviews"], checkedAt: row.checkedAt.toISOString() };
 }
 
-export async function listPublicChecks(limit = 30): Promise<PublicCheckHistoryEntry[]> {
-  if (!canUseDatabase()) return [...memory.values()].sort((a, b) => b.checkedAt.localeCompare(a.checkedAt)).slice(0, limit);
+export async function listPublicChecks(limit: number | null = 30): Promise<PublicCheckHistoryEntry[]> {
+  if (!canUseDatabase()) {
+    const entries = [...memory.values()].sort((a, b) => b.checkedAt.localeCompare(a.checkedAt));
+    return limit === null ? entries : entries.slice(0, limit);
+  }
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { prisma } = require("./store-prisma") as typeof import("./store-prisma");
   const checks = prisma as unknown as ChecksDatabase;
-  const rows = await checks.publicRepositoryCheck.findMany({ orderBy: { checkedAt: "desc" }, take: limit });
+  const rows = await checks.publicRepositoryCheck.findMany({ orderBy: { checkedAt: "desc" }, ...(limit === null ? {} : { take: limit }) });
   return rows.map((row) => ({ repository: row.repository, url: row.url, defaultBranch: row.defaultBranch, scannedFiles: row.scannedFiles, changes: row.changes as PublicCheck["changes"], reviews: row.reviews as PublicCheck["reviews"], checkedAt: row.checkedAt.toISOString() }));
 }
