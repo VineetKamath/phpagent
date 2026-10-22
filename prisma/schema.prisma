@@ -1,0 +1,210 @@
+// Durable persistence for production. The app currently runs with an in-memory
+// ledger (src/lib/store.ts) and reports this on /status; this schema is the target
+// for the Postgres-backed store.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DataMode {
+  REAL
+  DEMO
+}
+
+model CVE {
+  id          String         @id // CVE-YYYY-NNNN
+  summary     String
+  severity    String?
+  cvss        Float?
+  publishedAt DateTime?
+  modifiedAt  DateTime?
+  firstSeenAt DateTime       @default(now())
+  sources     SourceRecord[]
+  matches     RepositoryMatch[]
+  patches     Patch[]
+}
+
+model SourceRecord {
+  id               String   @id @default(cuid())
+  cveId            String
+  cve              CVE      @relation(fields: [cveId], references: [id])
+  provider         String
+  providerRecordId String
+  sourceUrl        String
+  retrievedAt      DateTime
+  publishedAt      DateTime?
+  modifiedAt       DateTime?
+  rawHash          String
+  @@unique([provider, providerRecordId, rawHash])
+}
+
+model Repository {
+  id             String                    @id // owner/repo
+  installationId Int?
+  dataMode       DataMode                  @default(REAL)
+  authorizations RepositoryAuthorization[]
+  matches        RepositoryMatch[]
+  patches        Patch[]
+}
+
+model RepositoryAuthorization {
+  id           String     @id @default(cuid())
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id])
+  source       String // github-app | patchbot
+  policy       Json?
+  active       Boolean
+  grantedAt    DateTime
+  revokedAt    DateTime?
+  @@unique([repositoryId, source])
+}
+
+model RepositoryMatch {
+  id           String     @id @default(cuid())
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id])
+  cveId        String
+  cve          CVE        @relation(fields: [cveId], references: [id])
+  file         String
+  current      String
+  target       String?
+  outcome      String // change | none | review
+  createdAt    DateTime   @default(now())
+}
+
+model Patch {
+  // id is a fingerprint of repository + campaign + exact changes (idempotency key)
+  id            String         @id
+  dataMode      DataMode
+  cveId         String
+  cve           CVE            @relation(fields: [cveId], references: [id])
+  cveIds        String[]
+  repositoryId  String
+  repository    Repository     @relation(fields: [repositoryId], references: [id])
+  file          String
+  fromVersion   String
+  toVersion     String
+  changes       Json
+  stage         String
+  branch        String?
+  prNumber      Int?
+  prUrl         String?
+  commitSha     String?
+  ciPassed      Int?
+  ciTotal       Int?
+  ciUrl         String?
+  disclosedAt   DateTime
+  detectedAt    DateTime?
+  matchedAt     DateTime?
+  generatedAt   DateTime?
+  testsPassedAt DateTime?
+  prOpenedAt    DateTime?
+  mergedAt      DateTime?
+  updatedAt     DateTime       @updatedAt
+  attempts      PatchAttempt[]
+  pullRequest   PullRequest?
+  @@index([repositoryId, branch])
+  @@index([dataMode, detectedAt])
+}
+
+model PatchAttempt {
+  id        String    @id @default(cuid())
+  patchId   String
+  patch     Patch     @relation(fields: [patchId], references: [id])
+  verdict   String
+  reasons   String[]
+  createdAt DateTime  @default(now())
+  testRuns  TestRun[]
+}
+
+model TestRun {
+  id         String       @id @default(cuid())
+  attemptId  String
+  attempt    PatchAttempt @relation(fields: [attemptId], references: [id])
+  provider   String // github-checks
+  passed     Int
+  total      Int
+  url        String?
+  finishedAt DateTime?
+}
+
+model PullRequest {
+  id        String    @id @default(cuid())
+  patchId   String    @unique
+  patch     Patch     @relation(fields: [patchId], references: [id])
+  number    Int
+  url       String
+  branch    String
+  commitSha String
+  mergeSha  String?
+  openedAt  DateTime
+  mergedAt  DateTime?
+  closedAt  DateTime?
+}
+
+model AgentEvent {
+  id              String   @id
+  timestamp       DateTime
+  eventType       String
+  status          String
+  environment     String
+  dataMode        DataMode
+  source          String
+  message         String
+  cveId           String?
+  repositoryId    String?
+  patchId         String?
+  metadata        Json
+  verificationUrl String?
+  @@index([dataMode, timestamp])
+}
+
+model TreasuryTransaction {
+  signature String   @id
+  dataMode  DataMode
+  direction String // in | out
+  lamports  BigInt
+  category  String
+  timestamp DateTime
+}
+
+model ComputeExpense {
+  id          String   @id @default(cuid())
+  dataMode    DataMode
+  category    String // inference | compute | database | rpc | storage | monitoring
+  amountUsd   Decimal
+  periodStart DateTime
+  periodEnd   DateTime
+  evidenceUrl String?
+  txSignature String?
+}
+
+model SystemHealth {
+  id        String   @id @default(cuid())
+  service   String
+  status    String
+  latencyMs Int?
+  detail    String
+  checkedAt DateTime @default(now())
+  @@index([service, checkedAt])
+}
+
+model Deployment {
+  id        String   @id
+  version   String
+  commitSha String?
+  createdAt DateTime @default(now())
+}
+
+model VerificationRecord {
+  id        String   @id @default(cuid())
+  eventId   String
+  kind      String
+  url       String
+  dataHash  String
+  createdAt DateTime @default(now())
+}

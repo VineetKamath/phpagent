@@ -1,0 +1,16 @@
+export const endpoints = [
+  ["/api/v1/status", "Computed health of every service and capability flags. Alias: /status.json"],
+  ["/api/v1/project", "Project metadata, evidence URLs and operational capabilities. Alias: /project.json"],
+  ["/api/v1/cves", "Tracked advisories and fixed-release table with data source"],
+  ["/api/v1/cves/{id}", "Live lookup across NVD, GitHub Advisories and CISA KEV with provenance"],
+  ["/api/v1/patches", "Patch records. REAL only unless the server runs DEMO_MODE"],
+  ["/api/v1/patches/{id}", "Single patch record"],
+  ["/api/v1/repos/{owner}/{repo}", "Repository authorization, patch history and metrics"],
+  ["/api/v1/events", "Agent event log (limit ≤ 500)"],
+  ["/api/v1/proof", "REAL-only verification ledger with external URLs and hashes"],
+  ["/api/v1/treasury", "Read-only treasury balance and signatures"],
+  ["/api/v1/metrics", "Metrics computed from recorded timestamps"],
+  ["/api/v1/sources", "Citation registry"],
+  ["/api/v1/agent", "Worker telemetry: running, last run time and summary, scheduler and write flags"],
+  ["/api/v1/stream", "Server-Sent Events: event `agent` carries an AgentEvent"],
+] as const;

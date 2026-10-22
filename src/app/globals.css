@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+@theme {
+  /* PHP palette: #777BB4 (elephant), #4F5B93 (deep), #8892BF (light), #232531 (night) */
+  --color-ink: #0c0d16;
+  --color-ink-2: #131525;
+  --color-ink-3: #1b1e34;
+  --color-night: #232531;
+  --color-line: #2a2e4b;
+  --color-paper: #eef0fb;
+  --color-steel: #9a9fc4;
+  --color-dim: #62678f;
+  --color-php: #8892bf;
+  --color-php-500: #777bb4;
+  --color-php-deep: #4f5b93;
+  --color-php-glow: #a9b0ff;
+  --color-amber: #f0b45a;
+  --color-crit: #ef6a63;
+  --color-ok: #62c99a;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body {
+  background: var(--color-ink);
+  font-family: var(--font-sans);
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--color-php-deep);
+  color: white;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-php);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.display {
+  font-size: clamp(42px, 6vw, 112px);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+}
+.h-section {
+  font-size: clamp(32px, 4vw, 64px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-steel);
+}
+.prose-ed p {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: #c9ccd8;
+  margin-top: 1.1em;
+  max-width: 64ch;
+}
+.prose-ed h3 {
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  margin-top: 2.2em;
+}
+.prose-ed ul {
+  margin-top: 1em;
+  padding-left: 1.2em;
+  list-style: disc;
+  color: #c9ccd8;
+  line-height: 1.7;
+  max-width: 64ch;
+}
+.prose-ed a {
+  color: var(--color-php);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.wash {
+  background: radial-gradient(60% 50% at 70% 40%, rgba(119, 123, 180, 0.22), transparent 70%);
+}
+
+/* runtime animation */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.pulse { animation: pulse-soft 2.4s ease-in-out infinite; }
+.rise { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .packet { display: none; }
+}
+
+@media print {
+  html, body { background: white !important; color: #111 !important; }
+  .no-print { display: none !important; }
+  .prose-ed p, .prose-ed ul { color: #222 !important; }
+  a { color: #222 !important; }
+  .print-break { break-before: page; }
+  @page { margin: 22mm 18mm; }
+}
+
+/* backgrounds */
+.grid-bg {
+  background-image: linear-gradient(rgba(136, 146, 191, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(136, 146, 191, 0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at 50% 30%, black 30%, transparent 75%);
+}
+.glow-php {
+  background: radial-gradient(50% 60% at 70% 35%, rgba(119, 123, 180, 0.35), transparent 70%), radial-gradient(40% 50% at 15% 80%, rgba(79, 91, 147, 0.28), transparent 70%);
+}
+.band { background: linear-gradient(180deg, var(--color-ink-2), var(--color-ink)); border-block: 1px solid var(--color-line); }
+.text-grad { background: linear-gradient(100deg, #eef0fb 10%, #a9b0ff 55%, #777bb4 90%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* scroll reveals: content is hidden only once RevealRoot is running, so nothing stays invisible without JS */
+.reveal { transition: opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); transition-delay: calc(var(--i, 0) * 90ms); }
+html.reveal-ready .reveal:not(.in) { opacity: 0; transform: translateY(28px); }
+.mask { display: block; overflow: hidden; padding-bottom: 0.06em; }
+.mask > span { display: block; transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1); transition-delay: calc(var(--i, 0) * 110ms); }
+html.reveal-ready .mask:not(.in) > span { transform: translateY(108%); }
+.draw path, .draw line { transition: stroke-dashoffset 1.6s ease; transition-delay: calc(var(--i, 0) * 120ms); }
+html.reveal-ready .draw:not(.in) path, html.reveal-ready .draw:not(.in) line { stroke-dasharray: 1200; stroke-dashoffset: 1200; }
+/* above the fold: CSS-only entrance, independent of JS */
+@keyframes maskup { from { transform: translateY(108%); } to { transform: none; } }
+.load { animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 110ms + 150ms); }
+.mask-load { display: block; overflow: hidden; padding-bottom: 0.06em; }
+.mask-load > span { display: block; animation: maskup 1.1s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(var(--i, 0) * 120ms); }
+@keyframes flow { to { stroke-dashoffset: -24; } }
+.flow { stroke-dasharray: 4 8; animation: flow 1.2s linear infinite; }
+@keyframes descend { 0% { transform: translateZ(var(--top)) ; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateZ(0px); opacity: 0; } }
+@keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.floaty { animation: floaty 7s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.reveal-ready .reveal:not(.in), html.reveal-ready .mask:not(.in) > span { opacity: 1 !important; transform: none !important; }
+  html.reveal-ready .draw:not(.in) path, html.reveal-ready .draw:not(.in) line { stroke-dashoffset: 0 !important; }
+}

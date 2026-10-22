@@ -1,0 +1,49 @@
+# Render Blueprint (free plan).
+# Free web services sleep after ~15 idle minutes and Render cron jobs are paid, so the
+# 15-minute schedule runs from GitHub Actions (.github/workflows/agent-cron.yml),
+# which calls POST /api/internal/run and wakes the service.
+services:
+  - type: web
+    name: phpagent
+    runtime: node
+    plan: free
+    # Keep the Neon database in the same region (AWS us-east-2 · Ohio)
+    region: ohio
+    buildCommand: npm ci && npm run db:migrate && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/v1/status
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DEMO_MODE
+        value: "false"
+      - key: SCHEDULER_ENABLED
+        value: "true"
+      - key: GITHUB_WRITES_ENABLED
+        value: "false"
+      - key: NEXT_PUBLIC_GITHUB_REPO
+        value: https://github.com/VineetKamath/phpagent
+      - key: INTERNAL_API_TOKEN
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SECURITY_CONTACT
+        sync: false
+      - key: GITHUB_APP_ID
+        sync: false
+      - key: GITHUB_APP_PRIVATE_KEY
+        sync: false
+      - key: GITHUB_WEBHOOK_SECRET
+        sync: false
+      - key: NEXT_PUBLIC_GITHUB_APP_URL
+        sync: false
+      - key: NVD_API_KEY
+        sync: false
+      - key: TREASURY_WALLET
+        sync: false
+      - key: SOLANA_RPC_URL
+        sync: false
+      - key: NEXT_PUBLIC_CONTRACT_ADDRESS
+        sync: false

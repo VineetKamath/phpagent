@@ -1,0 +1,57 @@
+# Runs the agent every 15 minutes by calling the deployed site.
+# Needed on Render's free plan, where the service sleeps and has no cron.
+# Repo → Settings → Secrets and variables → Actions:
+#   SITE_URL            e.g. https://phpagent.onrender.com
+#   INTERNAL_API_TOKEN  same value as on Render
+name: agent-run
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: agent-run
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Skip when not configured
+        id: cfg
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+          TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
+        run: |
+          if [ -z "$SITE_URL" ] || [ -z "$TOKEN" ]; then
+            echo "SITE_URL or INTERNAL_API_TOKEN secret not set; skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Wake the service
+        if: steps.cfg.outputs.skip != 'true'
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: |
+          # Free instances take up to ~60s to cold start.
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "$SITE_URL/api/v1/agent" || true)
+            echo "attempt $i: HTTP $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "service did not wake"; exit 1
+
+      - name: Trigger agent run
+        if: steps.cfg.outputs.skip != 'true'
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+          TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
+        run: |
+          code=$(curl -s -o run.json -w '%{http_code}' --max-time 300 -X POST \
+            -H "Authorization: Bearer $TOKEN" "$SITE_URL/api/internal/run")
+          echo "HTTP $code"; cat run.json; echo
+          # 409 = a run was already in progress (single-flight); not a failure.
+          [ "$code" = "200" ] || [ "$code" = "409" ]
