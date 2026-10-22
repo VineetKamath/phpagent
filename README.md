@@ -103,6 +103,7 @@ npm run db:migrate:dev      # create a new migration after editing schema.prisma
    - `INTERNAL_API_TOKEN`: the same value as on Render
 
    `.github/workflows/agent-cron.yml` then wakes the service and triggers a run every 15 minutes. You can also run it by hand from the Actions tab.
+   Each trigger also rechecks saved `/check` repositories whose last successful inspection is at least one hour old. The server uses the same hourly eligibility rule on its 15-minute timer, independently of GitHub App configuration. Configure the Actions secrets above to keep checks running when Render sleeps. Failed checks retain the prior findings and timestamp and are retried on a later trigger. Public checks inspect version declarations; they do not verify deployed servers or authorize patches.
 5. Set the GitHub App webhook URL to `<SITE_URL>/api/webhooks/github`. When a dry run looks right, set `GITHUB_WRITES_ENABLED=true` and redeploy.
 
 **Free-plan behaviour:**
