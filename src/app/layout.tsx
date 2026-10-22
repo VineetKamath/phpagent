@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#0c0d16", width: "device-width", initialScale: 1 };
 
 const nav = [
+  ["/check", "Check"],
   ["/live", "Live"],
   ["/architecture", "Architecture"],
   ["/patches", "Patches"],
@@ -89,7 +90,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <p className="mt-3 max-w-sm">We don&apos;t count patches until you can verify them.</p>
             </div>
             <ul className="space-y-2">
-              {[["/status", "Status"], ["/methodology", "Methodology"], ["/security", "Security"], ["/sources", "Sources"], ["/protect", "Protect your repo"]].map(([h, l]) => (
+              {[["/check", "Check a public repo"], ["/status", "Status"], ["/methodology", "Methodology"], ["/security", "Security"], ["/sources", "Sources"], ["/protect", "Protect your repo"]].map(([h, l]) => (
                 <li key={h}><Link className="hover:text-paper" href={h}>{l}</Link></li>
               ))}
             </ul>
