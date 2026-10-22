@@ -66,7 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               ))}
             </nav>
             <div className="ml-auto flex items-center gap-3">
-              <ContractChip address={brand.contractAddress} network={brand.network} />
+              <ContractChip initial={brand.contractAddress} network={brand.network} />
               <span className="hidden md:inline-flex"><AgentStatusDot /></span>
               <details className="relative xl:hidden">
                 <summary className="cursor-pointer list-none font-mono text-xs text-steel">MENU</summary>

@@ -8,6 +8,7 @@ export const endpoints = [
   ["/api/v1/repos/{owner}/{repo}", "Repository authorization, patch history and metrics"],
   ["/api/v1/events", "Agent event log (limit ≤ 500)"],
   ["/api/v1/proof", "REAL-only verification ledger with external URLs and hashes"],
+  ["/api/v1/token", "Token contract address (null until launched); changes stream as `config` events"],
   ["/api/v1/treasury", "Read-only treasury balance and signatures"],
   ["/api/v1/metrics", "Metrics computed from recorded timestamps"],
   ["/api/v1/sources", "Citation registry"],

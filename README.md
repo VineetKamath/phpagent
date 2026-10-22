@@ -112,6 +112,22 @@ npm run db:migrate:dev      # create a new migration after editing schema.prisma
 - **Worker status:** `/status` reports the worker as operational only after a clean run in the last 35 minutes, so expect DEGRADED right after a cold start until the next scheduled run.
 - **One instance only:** the event bus and single-flight guard are in-process. The free plan is single-instance anyway.
 
+## Contract address (CA) in the header
+
+The CA is a runtime setting stored in Postgres, not a build-time value, so changing it needs no redeploy:
+
+```bash
+npm run ca -- <mint address>     # set it on https://phpagent.si
+npm run ca                       # show the current value
+npm run ca -- --clear            # back to "CA NOT LAUNCHED"
+npm run ca -- <address> --local  # target http://localhost:3000 instead
+```
+
+- **Auth:** the command posts to `/api/internal/ca` with `INTERNAL_API_TOKEN` from your `.env`, which must match the server's value.
+- **Validation:** only a Solana public address (32–44 base58 characters) is accepted. Private keys and typos are rejected.
+- **Live update:** the server saves it, then pushes a `config` event on `/api/v1/stream`, so every open page updates its header within a second.
+- **Public read:** `/api/v1/token` and `/project.json` expose the current value.
+
 ## Local development
 
 ```bash

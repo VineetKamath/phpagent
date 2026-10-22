@@ -1,8 +1,9 @@
 import { brand } from "@/content/brand";
 import { getStatus } from "./health";
+import { getTokenInfo } from "./token";
 
 export async function projectInfo() {
-  const s = await getStatus();
+  const [s, token] = await Promise.all([getStatus(), getTokenInfo()]);
   const u = (p: string) => new URL(p, brand.siteUrl).toString();
   return {
     name: brand.brandName,
@@ -24,6 +25,7 @@ export async function projectInfo() {
     operationalCapabilities: s.capabilities,
     githubApp: brand.githubApp || null,
     treasury: { network: brand.network, publicWallet: brand.wallet || null, live: s.capabilities.liveTreasury },
+    token: { contractAddress: token.contractAddress, explorerUrl: token.explorerUrl, endpoint: u("/api/v1/token") },
     doesNot: ["generate exploits or payloads", "scan arbitrary hosts or URLs", "open PRs on repositories that have not opted in", "push to default branches", "hold private keys"],
   };
 }

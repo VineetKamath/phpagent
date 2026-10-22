@@ -13,7 +13,8 @@
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
-    "agent:run": "curl -fsS -X POST -H \"Authorization: Bearer $INTERNAL_API_TOKEN\" ${SITE_URL:-http://localhost:3000}/api/internal/run"
+    "agent:run": "curl -fsS -X POST -H \"Authorization: Bearer $INTERNAL_API_TOKEN\" ${SITE_URL:-http://localhost:3000}/api/internal/run",
+    "ca": "node scripts/ca.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

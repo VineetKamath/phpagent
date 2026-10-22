@@ -10,6 +10,8 @@ let es: EventSource | null = null;
 let events: AgentEvent[] = [];
 let state: StreamState = "connecting";
 const subs = new Set<Sub>();
+type ConfigSub = (key: string, value: string) => void;
+const configSubs = new Set<ConfigSub>();
 const emit = () => subs.forEach((s) => s(events, state));
 
 function connect() {
@@ -24,6 +26,10 @@ function connect() {
     if (events.some((x) => x.id === e.id)) return;
     events = [e, ...events].slice(0, 200);
     emit();
+  });
+  es.addEventListener("config", (m) => {
+    const { key, value } = JSON.parse((m as MessageEvent).data) as { key: string; value: string };
+    configSubs.forEach((c) => c(key, value));
   });
   es.onerror = () => {
     state = "reconnecting";
@@ -40,7 +46,7 @@ export function useAgentStream() {
     s(events, state);
     return () => {
       subs.delete(s);
-      if (!subs.size && es) {
+      if (!subs.size && !configSubs.size && es) {
         es.close();
         es = null;
         state = "connecting";
@@ -48,4 +54,18 @@ export function useAgentStream() {
     };
   }, []);
   return snap;
+}
+
+/** Runtime setting pushed over the shared stream (e.g. the contract address). Opens the stream if needed. */
+export function onConfigChange(cb: ConfigSub): () => void {
+  configSubs.add(cb);
+  connect();
+  return () => {
+    configSubs.delete(cb);
+    if (!subs.size && !configSubs.size && es) {
+      es.close();
+      es = null;
+      state = "connecting";
+    }
+  };
 }

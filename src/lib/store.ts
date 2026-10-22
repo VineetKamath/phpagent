@@ -23,6 +23,8 @@ export interface Backend {
   saveSource(cve: CveRow, p: Provenance): Promise<void>;
   cveFirstSeen(id: string): Promise<string | null>;
   saveAuthorization(repo: string, installationId: number | null, source: string, active: boolean, policy: unknown): Promise<void>;
+  getSetting(key: string): Promise<{ value: string; updatedAt: string } | null>;
+  setSetting(key: string, value: string): Promise<void>;
   ping(): Promise<void>;
 }
 
@@ -31,9 +33,10 @@ export type ReadMode = "REAL" | "ALL";
 const keep = (mode: ReadMode) => (r: { dataMode: DataMode }) => mode === "ALL" || r.dataMode === "REAL";
 
 type Listener = (e: AgentEvent) => void;
-type Mem = { events: AgentEvent[]; patches: Map<string, Patch>; sources: Set<string>; cves: Map<string, string>; auth: Map<string, { active: boolean; at: string }>; listeners: Set<Listener>; backend?: Backend };
+type ConfigListener = (key: string, value: string) => void;
+type Mem = { settings: Map<string, { value: string; updatedAt: string }>; configListeners: Set<ConfigListener>; events: AgentEvent[]; patches: Map<string, Patch>; sources: Set<string>; cves: Map<string, string>; auth: Map<string, { active: boolean; at: string }>; listeners: Set<Listener>; backend?: Backend };
 const g = globalThis as unknown as { __ledger?: Mem };
-const mem: Mem = (g.__ledger ??= { events: [], patches: new Map(), sources: new Set(), cves: new Map(), auth: new Map(), listeners: new Set() });
+const mem: Mem = (g.__ledger ??= { settings: new Map(), configListeners: new Set(), events: [], patches: new Map(), sources: new Set(), cves: new Map(), auth: new Map(), listeners: new Set() });
 
 const memoryBackend: Backend = {
   kind: "memory",
@@ -68,6 +71,12 @@ const memoryBackend: Backend = {
   },
   async saveAuthorization(repo, _i, source, active) {
     mem.auth.set(`${repo}|${source}`, { active, at: new Date().toISOString() });
+  },
+  async getSetting(key) {
+    return mem.settings.get(key) ?? null;
+  },
+  async setSetting(key, value) {
+    mem.settings.set(key, { value, updatedAt: new Date().toISOString() });
   },
   async ping() {},
 };
@@ -119,6 +128,20 @@ export const cveFirstSeen = (id: string) => backend().cveFirstSeen(id);
 export const recordAuthorization = (repo: string, installationId: number | null, source: "github-app" | "patchbot", active: boolean, policy: unknown = null) =>
   backend().saveAuthorization(repo, installationId, source, active, policy);
 export const pingDatabase = () => backend().ping();
+export const getSetting = (key: string) => backend().getSetting(key);
+
+/** Persist first, then notify open SSE streams so every page updates without a reload. */
+export async function setSetting(key: string, value: string): Promise<void> {
+  await backend().setSetting(key, value);
+  for (const l of mem.configListeners) l(key, value);
+}
+
+export function subscribeConfig(l: ConfigListener): () => void {
+  mem.configListeners.add(l);
+  return () => {
+    mem.configListeners.delete(l);
+  };
+}
 
 export function subscribe(l: Listener): () => void {
   mem.listeners.add(l);
@@ -138,6 +161,7 @@ export function __reset() {
   mem.sources.clear();
   mem.cves.clear();
   mem.auth.clear();
+  mem.settings.clear();
   mem.backend = undefined;
 }
 export function __setBackend(b: Backend | undefined) {

@@ -1,4 +1,4 @@
-import { subscribe, listEvents } from "@/lib/store";
+import { subscribe, subscribeConfig, listEvents } from "@/lib/store";
 import { readMode } from "@/lib/mode";
 
 export const dynamic = "force-dynamic";
@@ -18,9 +18,11 @@ export async function GET(req: Request) {
         if (mode === "REAL" && e.dataMode !== "REAL") return;
         send("agent", e);
       });
+      const unsubConfig = subscribeConfig((key, value) => send("config", { key, value }));
       const hb = setInterval(() => ctrl.enqueue(enc.encode(`: hb ${Date.now()}\n\n`)), 15_000);
       cleanup = () => {
         unsub();
+        unsubConfig();
         clearInterval(hb);
       };
       req.signal.addEventListener("abort", () => {

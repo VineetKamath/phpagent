@@ -136,6 +136,13 @@ export const prismaBackend: Backend = {
       create: { repositoryId: repo, source, active, policy: (policy ?? Prisma.JsonNull) as Prisma.InputJsonValue, grantedAt: now, revokedAt: active ? null : now },
     });
   },
+  async getSetting(key) {
+    const r = await prisma.setting.findUnique({ where: { key } });
+    return r ? { value: r.value, updatedAt: r.updatedAt.toISOString() } : null;
+  },
+  async setSetting(key, value) {
+    await prisma.setting.upsert({ where: { key }, update: { value }, create: { key, value } });
+  },
   async ping() {
     await prisma.$queryRaw`SELECT 1`;
   },

@@ -223,6 +223,8 @@ describe("DEMO records are never persisted outside DEMO_MODE", () => {
     sourceSeen: async () => false,
     saveSource: async () => {},
     cveFirstSeen: async () => null,
+    getSetting: async () => null,
+    setSetting: async () => {},
     saveAuthorization: async () => {},
     ping: async () => {},
   };

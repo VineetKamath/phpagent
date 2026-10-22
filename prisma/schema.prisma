@@ -208,3 +208,10 @@ model VerificationRecord {
   dataHash  String
   createdAt DateTime @default(now())
 }
+
+// Runtime settings changed without a redeploy (e.g. the token contract address).
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
