@@ -128,6 +128,27 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* START HERE */}
+      <section className="mx-auto max-w-[1560px] px-4 py-24 md:px-8 md:py-32">
+        <p className="eyebrow reveal flex items-center gap-3"><span className="h-px w-8 bg-php" />04 · Start here</p>
+        <h2 className="h-section reveal mt-5 max-w-[16ch]" style={d(1)}>Check first. <span className="text-php">Protect with permission.</span></h2>
+        <p className="reveal mt-5 max-w-2xl text-lg leading-relaxed text-steel" style={d(2)}>Use the public checker to see an explicit PHP runtime pin and a proposed version bump. Install the GitHub App only when you want phpagent to monitor a repository and open a pull request.</p>
+        <div className="mt-10 grid gap-5 md:grid-cols-2">
+          <article className="reveal rounded-3xl border border-php/50 bg-gradient-to-br from-php-deep/35 to-ink-2 p-8" style={d(1)}>
+            <p className="font-mono text-xs text-php">01 · READ-ONLY</p>
+            <h3 className="mt-4 text-3xl font-semibold tracking-tight">Check a public repo</h3>
+            <p className="mt-3 max-w-lg leading-relaxed text-steel">Paste <code className="font-mono text-sm text-paper">owner/repository</code>. The checker reads supported PHP pins and shows a proposed diff. It does not require an App install, make a branch, or create a pull request.</p>
+            <Link href="/check" className="mt-7 inline-block rounded-full bg-paper px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-php-glow">Open public checker</Link>
+          </article>
+          <article className="reveal rounded-3xl border border-line bg-ink-2 p-8" style={d(2)}>
+            <p className="font-mono text-xs text-ok">02 · AUTHORIZED</p>
+            <h3 className="mt-4 text-3xl font-semibold tracking-tight">Protect your repository</h3>
+            <p className="mt-3 max-w-lg leading-relaxed text-steel">Install the GitHub App on repositories you control. The agent scans only those selected repositories and can open a reviewable <code className="font-mono text-sm text-paper">patch-agent/*</code> pull request when a supported vulnerable pin is found.</p>
+            <Link href="/protect" className="mt-7 inline-block rounded-full border border-line px-5 py-2.5 text-sm font-medium transition hover:border-php">Install GitHub App</Link>
+          </article>
+        </div>
+      </section>
+
       {/* ARCHITECTURE */}
       <Section n="04 · Architecture" title={<>Every box is real code. <span className="text-php">Hover to inspect.</span></>}>
         <ArchitectureDiagram />
