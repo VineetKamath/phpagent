@@ -1,6 +1,6 @@
 services:
   web:
-    image: php:8.2.34-apache
+    image: php:8.2.35-apache
     ports:
       - "8080:80"
     volumes:
