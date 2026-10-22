@@ -2,5 +2,5 @@
   "name": "demo/support-portal",
   "description": "Support portal application for phpagent-si",
   "require": { "php": "^8.4" },
-  "config": { "platform": { "php": "8.4.26" } }
+  "config": { "platform": { "php": "8.4.27" } }
 }
