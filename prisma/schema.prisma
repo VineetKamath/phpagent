@@ -209,6 +209,18 @@ model VerificationRecord {
   createdAt DateTime @default(now())
 }
 
+// A read-only result from /check. These entries are deliberately separate from
+// Patch: no App authorization, branch, commit, or pull request exists here.
+model PublicRepositoryCheck {
+  repository    String   @id
+  url           String
+  defaultBranch String
+  scannedFiles  Int
+  changes       Json
+  reviews       Json
+  checkedAt     DateTime @updatedAt
+}
+
 // Runtime settings changed without a redeploy (e.g. the token contract address).
 model Setting {
   key       String   @id

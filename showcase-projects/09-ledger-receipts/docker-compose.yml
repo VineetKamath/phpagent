@@ -1,0 +1,7 @@
+services:
+  receipts:
+    image: php:8.4.26-cli
+    working_dir: /app
+    volumes:
+      - ./:/app:ro
+    command: ["php", "bin/receipt.php"]

@@ -38,10 +38,12 @@ export default async function Home() {
               PHP2Shell broke the runtime under a large share of the web. This agent watches the advisories, finds opted-in repositories still pinning a vulnerable PHP, and opens a tested pull request. Every step is public.
             </p>
             <div className="load mt-9 flex flex-wrap gap-3" style={d(5)}>
+              <Link href="/check" className="rounded-full bg-paper px-6 py-3 text-sm font-semibold text-ink shadow-[0_10px_40px_-10px_rgba(255,255,255,.45)] transition hover:bg-php-glow">Check a public repo</Link>
               <Link href="#watch" className="rounded-full bg-php-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_40px_-10px_rgba(119,123,180,.9)] transition hover:bg-php-glow hover:text-ink">Watch it work</Link>
               <Link href="/architecture" className="rounded-full border border-line bg-ink/40 px-6 py-3 text-sm font-medium backdrop-blur transition hover:border-php">See the architecture</Link>
               <Link href="/research/php2shell" className="px-2 py-3 text-sm text-steel hover:text-paper">PHP2Shell case →</Link>
             </div>
+            <p className="load mt-4 font-mono text-xs text-steel" style={d(6)}>No installation needed for a public check. Results are read-only and never create a pull request.</p>
           </div>
           <div className="load floaty" style={d(3)}>
             <RuntimeStack3D auto className="h-[46vh] [--s:clamp(190px,30vw,340px)] lg:h-[64vh]" />

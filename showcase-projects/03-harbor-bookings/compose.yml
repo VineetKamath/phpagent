@@ -1,0 +1,7 @@
+services:
+  web:
+    image: php:8.2.34-apache
+    ports:
+      - "8080:80"
+    volumes:
+      - ./public:/var/www/html:ro
