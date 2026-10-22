@@ -5,6 +5,8 @@ export const endpoints = [
   ["/api/v1/cves/{id}", "Live lookup across NVD, GitHub Advisories and CISA KEV with provenance"],
   ["/api/v1/patches", "Patch records. REAL only unless the server runs DEMO_MODE"],
   ["/api/v1/patches/{id}", "Single patch record"],
+  ["/api/v1/public-check", "Read-only inspection of one user-supplied public GitHub repository"],
+  ["/api/v1/public-checks", "Completed public repository inspections. Read-only findings, never patches"],
   ["/api/v1/repos/{owner}/{repo}", "Repository authorization, patch history and metrics"],
   ["/api/v1/events", "Agent event log (limit ≤ 500)"],
   ["/api/v1/proof", "REAL-only verification ledger with external URLs and hashes"],
